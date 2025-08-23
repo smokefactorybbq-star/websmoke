@@ -1,1 +1,570 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Smoke Factory BBQ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;overflow-x:hidden}
+    :root{
+      --accent:#16a34a; --danger:#dc2626; --border:#e5e7eb; --muted:#6b7280; --card:#f8fafc;
+      --header-pad:16px; --logo:144px; --cats-top:176px;
+    }
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;color:#111827;background:#fff;padding-bottom:120px}
+
+    .header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--border)}
+    .header-inner{max-width:1280px;margin:0 auto;padding:var(--header-pad);display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .logo{display:flex;align-items:center;gap:14px;cursor:pointer;min-width:0}
+    .logo img{width:var(--logo);height:var(--logo);object-fit:cover;border-radius:16px}
+    .brand{display:flex;flex-direction:column}
+    .brand-line1{font-size:28px;font-weight:800;line-height:1}
+    .brand-line2{font-size:16px;color:var(--muted)}
+    .lang{padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;flex:0 0 auto}
+
+    .cats{position:sticky;top:var(--cats-top);z-index:45;background:#fff;border-bottom:1px solid var(--border)}
+    .cats-inner{max-width:1280px;margin:0 auto;padding:8px 12px;display:flex;gap:8px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+    .cat-btn{padding:8px 10px;border:1px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;flex:0 0 auto}
+    .cat-btn:hover{background:#f3f4f6}
+
+    .welcome{max-width:1280px;margin:0 auto;padding:14px 12px;text-align:center;font-size:16px;line-height:1.55}
+
+    .layout{max-width:1280px;margin:0 auto;padding:12px;display:grid;grid-template-columns:2fr 1fr;gap:20px}
+    .menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .card{background:var(--card);border-radius:18px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);display:flex;flex-direction:column}
+    .card img{width:100%;height:200px;object-fit:cover}
+    .card-body{padding:12px 14px;display:flex;flex-direction:column;gap:8px;flex:1;min-width:0}
+    .title{font-weight:800}
+    .desc{color:var(--muted);font-size:14px;flex:1}
+    .price{font-size:18px;font-weight:800;color:#d97706}
+    .add{padding:6px 12px;border:0;border-radius:8px;background:#d97706;color:#fff;cursor:pointer}
+    .add:hover{background:#b45309}
+    .cat-title{margin:20px 0 8px;font-size:22px;border-left:4px solid var(--accent);padding-left:8px}
+
+    .cart{position:sticky;top:calc(var(--cats-top) + 36px);border:1px solid var(--border);border-radius:22px;background:#fff;overflow:hidden;height:fit-content}
+    .cart-h{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);background:#f9fafb}
+    .cart-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+    .addr{color:#2563eb;text-decoration:underline;cursor:pointer}
+    .ci{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;border-bottom:1px dashed var(--border);padding:10px 0}
+    .qty{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+    .qty button{width:28px;height:28px;border:0;background:#fff;cursor:pointer}
+    .qty span{padding:0 10px}
+    .checkout{margin-top:8px;width:100%;padding:14px;font-weight:800;border-radius:14px;border:0;cursor:pointer;background:var(--accent);color:#fff}
+
+    @media (max-width:1024px){.layout{grid-template-columns:1fr}}
+    @media (max-width:640px){
+      :root{ --header-pad:12px; --logo:96px; --cats-top:120px; }
+      .brand-line1{font-size:20px}
+      .brand-line2{font-size:13px}
+      .menu-grid{grid-template-columns:1fr}
+    }
+
+    @media (max-width:768px){
+      .mprog{
+        position:fixed;left:10px;right:10px;bottom:12px;
+        padding:10px 12px calc(env(safe-area-inset-bottom,0) + 10px);
+        background:rgba(255,255,255,.98);border:1px solid var(--border);border-radius:14px;
+        display:flex;align-items:center;gap:10px;z-index:60;backdrop-filter:saturate(180%) blur(8px)
+      }
+      .mprog input[type=range]{flex:1;height:8px;border-radius:999px;background:#e5e7eb;appearance:none;outline:none;overflow:hidden}
+      .mprog input[type=range]::-webkit-slider-thumb{
+        -webkit-appearance:none;width:24px;height:24px;border-radius:6px;background:#16a34a;border:2px solid #fff;box-shadow:0 0 0 2px #16a34a
+      }
+      .mprog .t{min-width:90px;font-size:12px;color:var(--muted);display:grid;grid-template-columns:1fr auto;gap:6px}
+      .mprog .t b{color:#111;font-size:13px}
+    }
+
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100}
+    .modal.show{display:flex}
+    .modal-card{width:min(680px,92vw);background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden}
+    .modal-h,.modal-f{padding:12px 16px;display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid var(--border)}
+    .modal-f{border-top:1px solid var(--border);border-bottom:none}
+    .modal-b{padding:16px;display:flex;flex-direction:column;gap:12px}
+    .btn{padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#fff;cursor:pointer}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .pill{padding:8px 10px;border:1px solid var(--border);border-radius:999px;background:#fff;cursor:pointer}
+    .pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .input{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px}
+    .phone{display:flex;align-items:stretch;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .prefix{display:flex;align-items:center;padding:0 10px;background:#f1f5f9;border-right:1px solid var(--border)}
+    .pinput{border:none;flex:1;padding:12px;outline:none}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo" id="scrollTopBtn" title="В начало">
+        <img src="/images/logo.jpg" alt="Логотип" onerror="this.src=PLACEHOLDER" />
+        <div class="brand">
+          <div class="brand-line1">Smoke Factory BBQ</div>
+          <div class="brand-line2" id="deliveryText">Доставка с 10.00 до 22.00 ПН–СБ</div>
+        </div>
+      </div>
+      <button class="lang" id="langBtn" title="Language">🌐 EN</button>
+    </div>
+  </header>
+
+  <div class="cats"><div class="cats-inner" id="catsBar"></div></div>
+
+  <div class="welcome" id="welcomeText">
+    Добро пожаловать в Smoke Factory BBQ. Классические блюда русской кухни и блюда из американского смокера.
+  </div>
+
+  <main class="layout">
+    <section id="menu"></section>
+
+    <aside class="cart" id="cart">
+      <div class="cart-h">
+        <strong id="myOrderLabel">Мой заказ</strong>
+        <span style="margin-left:auto;font-size:12px;color:#6b7280">📦 Delivery</span>
+      </div>
+      <div class="cart-body">
+        <div><span class="addr" id="addrLink">Указать адрес</span></div>
+        <div id="contactSummary" style="display:none;color:#6b7280;font-size:14px;margin-top:6px"></div>
+
+        <div id="cartItems"></div>
+
+        <div style="border-top:1px solid var(--border);padding-top:10px">
+          <div style="color:#6b7280;font-size:14px"><span id="deliveryCostLabel">Стоимость доставки</span>: <span id="deliveryFee">0</span> ฿</div>
+          <div style="color:#6b7280;font-size:14px"><span id="dishesTotalLabel">Сумма блюд</span>: <span id="itemsTotal">0</span> ฿</div>
+          <div style="color:#111827;font-size:14px;font-weight:700"><span id="totalToPayLabel">Итого к оплате</span>: <span id="grandTotal">0</span> ฿</div>
+        </div>
+
+        <button class="checkout" id="checkoutBtn">Оформить заказ</button>
+        <div id="fillWarn" style="display:none;color:#ef4444;font-size:12px;margin-top:6px">Укажите адрес и телефон</div>
+      </div>
+    </aside>
+  </main>
+
+  <div class="mprog" id="mprog">
+    <button id="gotoCartBtn" aria-label="Мой заказ" style="width:44px;height:44px;border-radius:10px;border:1px solid var(--border);background:#fff;display:grid;place-items:center;flex:0 0 44px">🛒</button>
+    <input id="progressRange" type="range" min="0" max="5000" step="1" value="0" readonly />
+    <div class="t"><span>0 — 5000</span><b id="progressValue">0</b></div>
+  </div>
+
+  <!-- Address Modal -->
+  <div class="modal" id="addressModal">
+    <div class="modal-card">
+      <div class="modal-h"><strong id="addressTitle">Адрес доставки</strong><button class="btn" id="addrClose">Закрыть</button></div>
+      <div class="modal-b">
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <button class="pill active" id="tabManual">Ввести вручную</button>
+          <button class="pill" id="tabMap">Указать на карте</button>
+        </div>
+        <div id="addrManual">
+          <input class="input" id="inpAddress" placeholder="Адрес доставки" />
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <input class="input" id="inpName" placeholder="Имя" />
+            <div class="phone">
+              <div class="prefix">+66</div>
+              <input class="pinput" id="inpPhone" inputmode="numeric" maxlength="10" placeholder="Телефон (10 цифр)" />
+            </div>
+          </div>
+        </div>
+        <div id="addrMap" style="display:none">
+          <input id="gmaps-search" class="input" placeholder="Найти адрес (Phuket)" />
+          <div id="gmaps" style="width:100%;height:300px;border-radius:12px;border:1px solid var(--border);background:#f3f4f6;margin-top:12px"></div>
+        </div>
+        <div style="color:var(--muted)">Кнопка «Подтвердить» станет активной после ввода адреса и телефона.</div>
+      </div>
+      <div class="modal-f"><button class="btn" id="addrCancel">Отмена</button><button class="btn primary" id="addrConfirm" disabled>Подтвердить</button></div>
+    </div>
+  </div>
+
+  <!-- Time Modal -->
+  <div class="modal" id="timeModal">
+    <div class="modal-card">
+      <div class="modal-h"><strong id="timeTitle">Время доставки</strong><button class="btn" id="timeClose">Закрыть</button></div>
+      <div class="modal-b">
+        <label style="display:flex;align-items:center;gap:8px"><input type="radio" name="ordertime" value="asap" id="optAsap" checked /> <span id="soonestLabel">Ближайшее</span></label>
+        <label style="display:flex;align-items:center;gap:8px"><input type="radio" name="ordertime" value="scheduled" id="optScheduled" /> <span id="selectTimeLabel">Выбрать время</span></label>
+        <div id="timePick" style="display:none;grid-template-columns:1fr 1fr;gap:12px">
+          <select class="input" id="hourSel"></select>
+          <select class="input" id="minSel">
+            <option>00</option><option>15</option><option>30</option><option>45</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;margin-bottom:6px;color:#6b7280" id="commentLabel">Комментарий к заказу</label>
+          <textarea class="input" rows="3" id="commentInp" placeholder="например: без лука, позвонить при прибытии…"></textarea>
+        </div>
+      </div>
+      <div class="modal-f"><button class="btn" id="timeCancel">Отмена</button><button class="btn primary" id="timeConfirm">Подтвердить</button></div>
+    </div>
+  </div>
+
+  <script>
+    // 🔑 ТОЛЬКО Google Maps ключ виден на фронте. Ограничьте его в Google Cloud по домену!
+    const GOOGLE_MAPS_API_KEY = "AIzaSyDpkOIC_DHo3gZgyibtJcRB92CjtPh97ik";
+
+    const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="100%" height="100%" fill="#e5e7eb"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#6b7280" font-family="Arial" font-size="20">no image</text></svg>'
+    );
+
+    const MENU = {
+      "Супы": [
+        { name:"Гороховый суп", img:"/images/goroh-soup1.jpeg", price:350, desc:"Наваристый суп с копченостями и зеленью" },
+        { name:"Борщ",         img:"/images/borsh.jpeg",       price:360, desc:"Традиционный украинский борщ с мясом" },
+        { name:"Солянка",      img:"/images/solyanka.jpeg",    price:380, desc:"Мясная солянка с оливками и лимоном" },
+      ],
+      "Основные блюда": [
+        { name:"Бефстроганов",         img:"/images/befstroganoff.jpeg",          price:650, desc:"Классическое блюдо из говядины в сметанном соусе" },
+        { name:"Котлета по-киевски",   img:"/images/kotlety-po-kievski.jpeg",     price:520, desc:"Куриная котлета с маслом и зеленью" },
+        { name:"Пельмени",             img:"/images/pelmeni.jpeg",                price:380, desc:"Домашние пельмени со сметаной" },
+        { name:"Вареники",             img:"/images/vareniki.jpeg",               price:360, desc:"Вареники с картофелем и сметаной" },
+        { name:"Лепешка с сыром",      img:"/images/lepeshka-s-sirom1.jpeg",      price:180, desc:"Горячая лепешка с расплавленным сыром" },
+      ],
+      "Салаты": [
+        { name:"Салат Цезарь",     img:"/images/salat-cezar.jpeg",     price:420, desc:"Классический салат с курицей, пармезаном и сухариками" },
+        { name:"Салат с баклажанами", img:"/images/salat-baklazhan.jpeg", price:390, desc:"Тёплый салат с жареными баклажанами" },
+        { name:"Салат с тунцом",   img:"/images/salat-tunec.jpeg",     price:440, desc:"Свежий салат с тунцом и яйцом" },
+      ],
+      "Гриль": [
+        { name:"Кебаб из курицы",            img:"/images/kebab-kur.jpeg",   price:420, desc:"Сочный куриный кебаб с овощами" },
+        { name:"Кебаб из свинины и говядины", img:"/images/kebab-mix.jpeg",  price:520, desc:"Микс на гриле из свинины и говядины" },
+        { name:"Шашлык из курицы",           img:"/images/shashlik-kur.jpeg", price:450, desc:"Маринованный куриный шашлык" },
+        { name:"Шашлык из свинины",          img:"/images/shashlik-svin.jpeg", price:520, desc:"Классический свиной шашлык" },
+        { name:"Ребра BBQ",                  img:"/images/ribs-bbq.jpeg",    price:690, desc:"Копченые свиные ребра в соусе BBQ" },
+      ],
+      "Заморозка": [
+        { name:"Картофель фри",      img:"/images/fri.jpeg",    price:160, desc:"Хрустящий картофель фри" },
+        { name:"Картофельные дольки", img:"/images/wedges.jpeg", price:170, desc:"Запеченные картофельные дольки" },
+      ],
+      "Копчение": [
+        { name:"Свиная колбаса",           img:"/images/kolbasa-svinaya1.jpeg", price:420, desc:"Домашняя копченая свиная колбаса" },
+        { name:"Копченая курица",          img:"/images/kopch-kur.jpeg",        price:480, desc:"Ароматная копченая курица" },
+        { name:"Копченый бекон",           img:"/images/bacon.jpeg",            price:450, desc:"Нарезка копченого бекона" },
+        { name:"Копченая свиная корейка",  img:"/images/koreyka.jpeg",          price:540, desc:"Деликатесная копченая корейка" },
+      ],
+    };
+
+    const I18N = {
+      ru: {
+        delivery: "Доставка с 10.00 до 22.00 ПН–СБ",
+        welcome: "Добро пожаловать в Smoke Factory BBQ. Классические блюда русской кухни и блюда из американского смокера.",
+        addToCart: "Добавить в корзину",
+        myOrder: "Мой заказ",
+        specifyAddress: "Указать адрес",
+        address: "Адрес",
+        name: "Имя",
+        phone: "Телефон",
+        deliveryCost: "Стоимость доставки",
+        dishesTotal: "Сумма блюд",
+        totalToPay: "Итого к оплате",
+        placeOrder: "Оформить заказ",
+        remove: "удалить",
+        fillAddress: "Укажите адрес и телефон",
+        addressTitle: "Адрес доставки",
+        soonest: "Ближайшее",
+        selectTime: "Выбрать время",
+        comment: "Комментарий к заказу",
+        thankYou: "Спасибо! Заказ отправлен.",
+        failed: "Не удалось отправить заказ. Проверьте соединение."
+      },
+      en: {
+        delivery: "Delivery 10.00 to 22.00 MON–SAT",
+        welcome: "Welcome to Smoke Factory BBQ. Classic Russian cuisine and American-smoked dishes.",
+        addToCart: "Add to cart",
+        myOrder: "My order",
+        specifyAddress: "Specify address",
+        address: "Address",
+        name: "Name",
+        phone: "Phone",
+        deliveryCost: "Delivery cost",
+        dishesTotal: "Dishes total",
+        totalToPay: "Total to pay",
+        placeOrder: "Place order",
+        remove: "remove",
+        fillAddress: "Please enter address and phone",
+        addressTitle: "Delivery Address",
+        soonest: "Soonest",
+        selectTime: "Select time",
+        comment: "Order Comment",
+        thankYou: "Thank you! Order sent.",
+        failed: "Failed to send order. Check connection."
+      }
+    };
+
+    let lang = "ru";
+    let cart = {};
+    let customer = { address:"", name:"", phone:"" };
+    const DELIVERY_FEE_DEFAULT = 100;
+
+    const validPhone = (p) => /^\+66\d{9,10}$/.test(p);
+    const itemsTotal = () => Object.values(cart).reduce((s,it)=>s+it.qty*it.price,0);
+    const deliveryFee = () => customer.address ? DELIVERY_FEE_DEFAULT : 0;
+    const grandTotal = () => itemsTotal() + deliveryFee();
+    const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+    const safe = (s) => String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+
+    function loadGoogleMaps(apiKey){
+      if(!apiKey) return Promise.resolve();
+      return new Promise((resolve,reject)=>{
+        if(window.google?.maps) return resolve();
+        const ex = document.querySelector('script[data-gmaps="1"]');
+        if(ex){ ex.addEventListener("load",()=>resolve()); ex.addEventListener("error",()=>reject()); return; }
+        const s=document.createElement("script");
+        s.src=`https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`; s.async=true; s.defer=true; s.dataset.gmaps="1";
+        s.onload=()=>resolve(); s.onerror=()=>reject(new Error("Google Maps failed to load"));
+        document.head.appendChild(s);
+      });
+    }
+
+    function renderCats(){
+      const bar = document.getElementById("catsBar");
+      bar.innerHTML = "";
+      Object.keys(MENU).forEach(c=>{
+        const b=document.createElement("button");
+        b.className="cat-btn";
+        b.textContent=c;
+        b.onclick=()=>document.getElementById("cat-"+c.toLowerCase().replace(/\s+/g,"-")).scrollIntoView({behavior:"smooth",block:"start"});
+        bar.appendChild(b);
+      });
+    }
+    function renderMenu(){
+      const root = document.getElementById("menu");
+      root.innerHTML = "";
+      Object.entries(MENU).forEach(([cat,items])=>{
+        const wrap=document.createElement("div");
+        const h=document.createElement("div");
+        h.className="cat-title"; h.id="cat-"+cat.toLowerCase().replace(/\s+/g,"-");
+        h.textContent=cat;
+        const grid=document.createElement("div");
+        grid.className="menu-grid";
+        items.forEach(it=>{
+          const card=document.createElement("div"); card.className="card";
+          const img=document.createElement("img"); img.src=it.img || PLACEHOLDER; img.alt=it.name; img.onerror=()=>{img.src=PLACEHOLDER};
+          const body=document.createElement("div"); body.className="card-body";
+          const t=document.createElement("div"); t.className="title"; t.textContent=it.name;
+          const d=document.createElement("div"); d.className="desc"; d.textContent=it.desc;
+          const foot=document.createElement("div"); foot.style.display="flex"; foot.style.justifyContent="space-between"; foot.style.alignItems="center"; foot.style.marginTop="auto";
+          const price=document.createElement("div"); price.className="price"; price.textContent=it.price+" ฿";
+          const add=document.createElement("button"); add.className="add"; add.textContent=I18N[lang].addToCart;
+          add.onclick=()=>{ addToCart(it); };
+          foot.append(price,add); body.append(t,d,foot); card.append(img,body); grid.append(card);
+        });
+        wrap.append(h,grid); root.append(wrap);
+      });
+    }
+    function renderCart(){
+      const itemsRoot = document.getElementById("cartItems");
+      itemsRoot.innerHTML = "";
+      Object.entries(cart).forEach(([name,it])=>{
+        const row=document.createElement("div"); row.className="ci";
+        const img=document.createElement("img"); img.src=it.img||PLACEHOLDER; img.alt=name; img.style.width="48px"; img.style.height="48px"; img.style.objectFit="cover"; img.style.borderRadius="8px"; img.onerror=()=>{img.src=PLACEHOLDER};
+        const mid=document.createElement("div");
+        const top=document.createElement("div"); top.style.display="flex"; top.style.justifyContent="space-between"; top.style.gap="8px"; top.style.alignItems="center";
+        const strong=document.createElement("strong"); strong.textContent=name;
+        const rm=document.createElement("button"); rm.textContent=I18N[lang].remove; rm.style.color="var(--danger)"; rm.style.border="0"; rm.style.background="transparent"; rm.style.cursor="pointer"; rm.style.fontSize="12px";
+        rm.onclick=()=>{ delete cart[name]; updateUI(); };
+        top.append(strong,rm);
+        const sum=document.createElement("div"); sum.style.color="#6b7280"; sum.style.fontSize="14px"; sum.innerHTML = `${it.price} ฿ × ${it.qty} = <strong>${it.qty*it.price} ฿</strong>`;
+        mid.append(top,sum);
+        const qty=document.createElement("div"); qty.className="qty";
+        const minus=document.createElement("button"); minus.textContent="−"; minus.onclick=()=>{ it.qty--; if(it.qty<=0) delete cart[name]; updateUI(); };
+        const cnt=document.createElement("span"); cnt.textContent=String(it.qty);
+        const plus=document.createElement("button"); plus.textContent="+"; plus.onclick=()=>{ it.qty++; updateUI(); };
+        qty.append(minus,cnt,plus);
+        row.append(img,mid,qty); itemsRoot.append(row);
+      });
+
+      document.getElementById("deliveryFee").textContent = String(deliveryFee());
+      document.getElementById("itemsTotal").textContent = String(itemsTotal());
+      document.getElementById("grandTotal").textContent = String(grandTotal());
+
+      const prog = Math.min(5000, itemsTotal());
+      document.getElementById("progressRange").value = String(prog);
+      document.getElementById("progressValue").textContent = String(itemsTotal());
+    }
+    function renderContactSummary(){
+      const box = document.getElementById("contactSummary");
+      if(customer.address){
+        box.style.display="block";
+        box.innerHTML = `<div><strong>${I18N[lang].address}:</strong> ${safe(customer.address)}</div>` +
+                        (customer.name? `<div><strong>${I18N[lang].name}:</strong> ${safe(customer.name)}</div>`:"") +
+                        (customer.phone? `<div><strong>${I18N[lang].phone}:</strong> ${safe(customer.phone)}</div>`:"");
+      } else {
+        box.style.display="none"; box.innerHTML="";
+      }
+      document.getElementById("fillWarn").style.display = (!customer.address || !validPhone(customer.phone)) ? "block" : "none";
+    }
+    function applyLang(){
+      document.getElementById("deliveryText").textContent = I18N[lang].delivery;
+      document.getElementById("welcomeText").textContent  = I18N[lang].welcome;
+      document.getElementById("myOrderLabel").textContent = I18N[lang].myOrder;
+      document.getElementById("addrLink").textContent     = I18N[lang].specifyAddress;
+      document.getElementById("deliveryCostLabel").textContent = I18N[lang].deliveryCost;
+      document.getElementById("dishesTotalLabel").textContent  = I18N[lang].dishesTotal;
+      document.getElementById("totalToPayLabel").textContent   = I18N[lang].totalToPay;
+      document.getElementById("checkoutBtn").textContent = I18N[lang].placeOrder;
+      document.getElementById("addressTitle").textContent = I18N[lang].addressTitle;
+      document.getElementById("soonestLabel").textContent = I18N[lang].soonest;
+      document.getElementById("selectTimeLabel").textContent = I18N[lang].selectTime;
+      document.getElementById("commentLabel").textContent = I18N[lang].comment;
+      document.getElementById("fillWarn").textContent = I18N[lang].fillAddress;
+      document.querySelectorAll(".add").forEach(btn=>btn.textContent=I18N[lang].addToCart);
+      document.getElementById("langBtn").textContent = (lang === "ru") ? "🌐 EN" : "🌐 RU";
+    }
+    function updateUI(){ renderCart(); renderContactSummary(); applyLang(); }
+
+    function addToCart(item){
+      const ex=cart[item.name];
+      if(ex) ex.qty++; else cart[item.name]={qty:1, price:item.price, img:item.img};
+      updateUI();
+    }
+
+    const addressModal = document.getElementById("addressModal");
+    const timeModal    = document.getElementById("timeModal");
+    function showModal(el){ el.classList.add("show"); }
+    function hideModal(el){ el.classList.remove("show"); }
+
+    (function(){
+      const btnOpen = document.getElementById("addrLink");
+      const btnClose= document.getElementById("addrClose");
+      const btnCancel=document.getElementById("addrCancel");
+      const btnConfirm=document.getElementById("addrConfirm");
+      const tabManual=document.getElementById("tabManual");
+      const tabMap   =document.getElementById("tabMap");
+      const paneManual=document.getElementById("addrManual");
+      const paneMap   =document.getElementById("addrMap");
+      const inpAddress=document.getElementById("inpAddress");
+      const inpName   =document.getElementById("inpName");
+      const inpPhone  =document.getElementById("inpPhone");
+
+      function validate(){
+        const ok = inpAddress.value.trim().length>3 && /^\d{9,10}$/.test(inpPhone.value);
+        btnConfirm.disabled = !ok;
+      }
+      [inpAddress,inpName,inpPhone].forEach(el=>el.addEventListener("input",validate));
+
+      tabManual.onclick=()=>{
+        tabManual.classList.add("active"); tabMap.classList.remove("active");
+        paneManual.style.display="block"; paneMap.style.display="none";
+      };
+      tabMap.onclick=async()=>{
+        tabMap.classList.add("active"); tabManual.classList.remove("active");
+        paneManual.style.display="none"; paneMap.style.display="block";
+        try {
+          await loadGoogleMaps(GOOGLE_MAPS_API_KEY);
+          const g=window.google;
+          if(!g?.maps) return;
+          const center={lat:7.878978,lng:98.398392};
+          const map=new g.maps.Map(document.getElementById("gmaps"),{center,zoom:12});
+          const marker=new g.maps.Marker({position:center,map,draggable:true});
+          const geocoder=new g.maps.Geocoder();
+          marker.addListener("dragend", async ()=>{
+            const pos=marker.getPosition(); if(!pos) return;
+            const {results}=await geocoder.geocode({location:pos});
+            if(results && results[0]) inpAddress.value = results[0].formatted_address, validate();
+          });
+          const acInput=document.getElementById("gmaps-search");
+          const ac=new g.maps.places.Autocomplete(acInput,{fields:["formatted_address","geometry"]});
+          ac.addListener("place_changed",()=>{
+            const place=ac.getPlace(); if(!place||!place.geometry) return;
+            const loc=place.geometry.location;
+            map.panTo(loc); map.setZoom(15); marker.setPosition(loc);
+            inpAddress.value = place.formatted_address || ""; validate();
+          });
+        } catch(e){ console.error("GMaps init error:", e); }
+      };
+
+      btnOpen.onclick = ()=> showModal(addressModal);
+      btnClose.onclick= ()=> hideModal(addressModal);
+      btnCancel.onclick=()=> hideModal(addressModal);
+      btnConfirm.onclick=()=>{
+        customer.address = inpAddress.value.trim();
+        customer.name    = inpName.value.trim();
+        customer.phone   = "+66"+ inpPhone.value.replace(/\D/g,"");
+        hideModal(addressModal);
+        showModal(timeModal);
+        updateUI();
+      };
+    })();
+
+    (function(){
+      const btnClose  = document.getElementById("timeClose");
+      const btnCancel = document.getElementById("timeCancel");
+      const btnConfirm= document.getElementById("timeConfirm");
+      const optAsap   = document.getElementById("optAsap");
+      const optSched  = document.getElementById("optScheduled");
+      const picker    = document.getElementById("timePick");
+      const hourSel   = document.getElementById("hourSel");
+      const minSel    = document.getElementById("minSel");
+      const comment   = document.getElementById("commentInp");
+
+      for(let h=9; h<=22; h++){
+        const v=String(h).padStart(2,"0");
+        const opt=document.createElement("option"); opt.value=v; opt.textContent=v; hourSel.append(opt);
+      }
+
+      function modeUpdate(){ picker.style.display = optSched.checked ? "grid" : "none"; }
+      optAsap.onchange=modeUpdate; optSched.onchange=modeUpdate;
+
+      btnClose.onclick = ()=> hideModal(timeModal);
+      btnCancel.onclick=()=> hideModal(timeModal);
+
+      btnConfirm.onclick=async()=>{
+        const items={}; Object.entries(cart).forEach(([name,it])=> items[name]={qty:it.qty, price:it.price});
+        const payload = {
+          items,
+          phone: customer.phone,
+          name:  customer.name,
+          address: customer.address,
+          delivery: deliveryFee(),
+          total: grandTotal(),
+          comment: comment.value.trim(),
+          orderDate: new Date().toISOString().slice(0,10),
+          orderTime: optSched.checked ? `${hourSel.value}:${minSel.value}` : "soonest",
+          orderWhen: optSched.checked ? "scheduled" : "asap",
+          source: "html",
+        };
+
+        try{
+          await sendOrderViaAPI(payload);
+          alert(I18N[lang].thankYou);
+          cart = {}; updateUI(); hideModal(timeModal);
+        }catch(e){
+          console.error(e);
+          alert(I18N[lang].failed);
+        }
+      };
+    })();
+
+    document.getElementById("checkoutBtn").onclick = ()=>{
+      if(!customer.address || !validPhone(customer.phone)){
+        document.getElementById("fillWarn").style.display = "block";
+        document.getElementById("addrLink").click();
+      } else {
+        showModal(timeModal);
+      }
+    };
+
+    document.getElementById("gotoCartBtn").onclick = ()=> document.getElementById("cart").scrollIntoView({behavior:"smooth",block:"start"});
+    document.getElementById("scrollTopBtn").onclick = scrollToTop;
+
+    document.getElementById("langBtn").onclick = ()=>{
+      lang = (lang === "ru") ? "en" : "ru";
+      applyLang(); renderMenu();
+    };
+
+    async function sendOrderViaAPI(payload){
+      const res = await fetch("/api/order", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("API error " + res.status);
+      return res.json();
+    }
+
+    function renderAll(){
+      renderCats();
+      renderMenu();
+      updateUI();
+      applyLang();
+    }
+    renderAll();
+  </script>
+</body>
+</html>
 
